@@ -1,0 +1,36 @@
+Manifest-Version: 1.0
+Bundle-Description: Eclipse Transformer CLI
+Bundle-Developers: bjhargrave;email="hargrave@us.ibm.com";name="BJ Har
+ grave";organization=IBM;organizationUrl="https://developer.ibm.com";r
+ oles="developer,lead";timezone="America/New_York"
+Bundle-DocURL: https://projects.eclipse.org/projects/technology.transf
+ ormer
+Bundle-License: "(EPL-2.0 OR Apache-2.0)";link="https://opensource.org
+ /licenses/EPL-2.0,https://opensource.org/licenses/Apache-2.0";descrip
+ tion="This program and the accompanying materials are made available 
+ under the terms of the Eclipse Public License 2.0, or the Apache Lice
+ nse, Version 2.0."
+Bundle-ManifestVersion: 2
+Bundle-Name: org.eclipse.transformer:org.eclipse.transformer.cli
+Bundle-SCM: url="https://github.com/eclipse/transformer",connection="s
+ cm:git:https://github.com/eclipse/transformer.git",developer-connecti
+ on="scm:git:git@github.com:eclipse/transformer.git",tag="0.5.0"
+Bundle-SymbolicName: org.eclipse.transformer.cli
+Bundle-Vendor: Eclipse Foundation
+Bundle-Version: 0.5.0
+Class-Path: libs/biz.aQute.bnd.transform-6.3.1.jar libs/commons-cli-1.
+ 5.0.jar libs/org.eclipse.transformer.jakarta-0.5.0.jar libs/org.eclip
+ se.transformer-0.5.0.jar libs/slf4j-api-1.7.36.jar libs/slf4j-simple-
+ 1.7.36.jar
+Export-Package: org.eclipse.transformer.cli;version="1.0.0";uses:="org
+ .apache.commons.cli,org.eclipse.transformer,org.eclipse.transformer.a
+ ction,org.slf4j"
+Import-Package: aQute.lib.io,aQute.libg.uri,org.apache.commons.cli;ver
+ sion="[1.5,2)",org.eclipse.transformer;version="[1.0,2)",org.eclipse.
+ transformer.action;version="[1.0,2)",org.eclipse.transformer.jakarta;
+ version="[1.0,2)",org.eclipse.transformer.util;version="[1.0,2)",org.
+ slf4j;version="[1.7,2)",org.slf4j.helpers;version="[1.7,2)"
+Main-Class: org.eclipse.transformer.cli.JakartaTransformerCLI
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"
+SPDX-License-Identifier: (EPL-2.0 OR Apache-2.0)
+

@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.example</groupId>
+    <artifactId>shared-lib</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>Shared Library</name>
+    <description>A shared library compatible with both Spring 5 and Spring 6</description>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Jakarta EE API versions -->
+        <jakarta.annotation-api.version>2.1.1</jakarta.annotation-api.version>
+        <jakarta.inject-api.version>2.0.1</jakarta.inject-api.version>
+        <jakarta.persistence-api.version>3.1.0</jakarta.persistence-api.version>
+
+        <!-- Spring versions for different profiles -->
+        <spring5.version>5.3.39</spring5.version>
+        <spring6.version>6.1.6</spring6.version>
+        <!-- Spring Boot versions for autoconfiguration -->
+        <spring-boot5.version>2.7.18</spring-boot5.version>
+        <spring-boot6.version>3.2.4</spring-boot6.version>
+    </properties>
+
+    <profiles>
+        <!-- Default build creates both Spring 5 and Spring 6 versions -->
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <spring.version>${spring6.version}</spring.version>
+                <spring-boot.version>${spring-boot6.version}</spring-boot.version>
+                <jar.finalName>shared-lib-${project.version}</jar.finalName>
+            </properties>
+            <build>
+                <plugins>
+                    <!-- Eclipse Transformer Maven Plugin to create Spring 5 compatible version -->
+                    <plugin>
+                        <groupId>org.eclipse.transformer</groupId>
+                        <artifactId>transformer-maven-plugin</artifactId>
+                        <version>0.5.0</version>
+                        <executions>
+                            <execution>
+                                <id>javax-back-transformation</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                                <configuration>
+                                    <!-- Transform the main project artifact -->
+                                    <artifact>
+                                        <groupId>${project.groupId}</groupId>
+                                        <artifactId>${project.artifactId}</artifactId>
+                                        <version>${project.version}</version>
+                                        <type>jar</type>
+                                    </artifact>
+                                    <!-- Apply reverse transformation rules -->
+                                    <rules>
+                                        <jakartaDefaults>true</jakartaDefaults>
+                                        <invert>true</invert>
+                                        <overwrite>false</overwrite>
+                                    </rules>
+                                    <classifier>spring5</classifier>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        
+        <!-- Legacy profiles for individual builds (kept for compatibility) -->
+        <profile>
+            <id>spring5</id>
+            <properties>
+                <spring.version>${spring5.version}</spring.version>
+                <spring-boot.version>${spring-boot5.version}</spring-boot.version>
+                <jar.finalName>shared-lib-${project.version}-spring5</jar.finalName>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>3.1.1</version>
+                        <executions>
+                            <execution>
+                                <id>transform-jakarta-to-javax</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                                <configuration>
+                                    <mainClass>org.eclipse.transformer.cli.JakartaTransformerCLI</mainClass>
+                                    <arguments>
+                                        <argument>${project.build.directory}/${jar.finalName}.jar</argument>
+                                        <argument>${project.build.directory}/${jar.finalName}-temp.jar</argument>
+                                        <argument>--invert</argument>
+                                    </arguments>
+                                    <includePluginDependencies>true</includePluginDependencies>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>replace-with-transformed</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>sh</executable>
+                                    <arguments>
+                                        <argument>-c</argument>
+                                        <argument>mv "${project.build.directory}/${jar.finalName}-temp.jar" "${project.build.directory}/${jar.finalName}.jar"</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.eclipse.transformer</groupId>
+                                <artifactId>org.eclipse.transformer.cli</artifactId>
+                                <version>0.5.0</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        
+        <!-- Profile for Spring 6 compatibility (default) -->
+        <profile>
+            <id>spring6</id>
+            <properties>
+                <spring.version>${spring6.version}</spring.version>
+                <spring-boot.version>${spring-boot6.version}</spring-boot.version>
+                <jar.finalName>shared-lib-${project.version}-spring6</jar.finalName>
+            </properties>
+        </profile>
+    </profiles>
+
+    <dependencies>
+        <!-- Jakarta APIs (works with both Spring 5 and 6) -->
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+            <version>${jakarta.annotation-api.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>jakarta.inject</groupId>
+            <artifactId>jakarta.inject-api</artifactId>
+            <version>${jakarta.inject-api.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
+            <version>${jakarta.persistence-api.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Spring Context (version determined by profile) -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.2</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.12.1</version>
+                <configuration>
+                    <source>17</source>
+                    <target>17</target>
+                </configuration>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <finalName>${jar.finalName}</finalName>
+                </configuration>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+            </plugin>
+        </plugins>
+    </build>
+</project>

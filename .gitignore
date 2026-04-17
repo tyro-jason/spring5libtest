@@ -1,0 +1,10 @@
+# Ignore runtime log files
+*.log
+
+# Ignore build output
+**/target/
+
+# Ignore local IDE/system files
+.idea/
+.vscode/
+.DS_Store
